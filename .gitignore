@@ -3,4 +3,6 @@ dist
 
 rename-img/input
 rename-img/output
+
 .DS_Store
+bun.lockb
