@@ -1,39 +1,11 @@
 import fs from "fs";
-import exif, { ExifImage } from "exif";
+import { ExifImage } from "exif";
 
-function renameFile(oldPath: string, newPath: string) {
-  const info: {
-    status: boolean;
-    path: string;
-    msg?: string;
-  } = {
-    status: false,
-    path: oldPath,
-  };
-
-  fs.rename(oldPath, newPath, (err) => {
-    if (err) {
-      info.msg = err.message;
-      throw err;
-    } else {
-      info.status = true;
-    }
-  });
-
-  return info;
-}
-
-function main(
-  inputDir: string,
-  outPutDir?: string,
-  config?: {
-    newInfo?: exif.ExifData["image"];
-  }
-) {
+function main(inputDir: string, outPutDir?: string) {
   const inputDirectoryPath = `${__dirname}/${inputDir}`;
   const outputDirectoryPath = `${__dirname}/${outPutDir || inputDir}`;
 
-  fs.readdir(inputDirectoryPath, (err, files) => {
+  fs.readdir(inputDirectoryPath, async (err, files) => {
     if (err) {
       console.error(err);
       return;
@@ -48,64 +20,73 @@ function main(
     console.log(line);
     console.log();
 
-    const finishList: ReturnType<typeof renameFile>[] = [];
-    const errList: ReturnType<typeof renameFile>[] = [];
+    const finishList: string[] = [];
+    const errList: { file: string; error: string }[] = [];
+
     validFiles.forEach((file, index) => {
       const inputFilePath = `${inputDirectoryPath}/${file}`;
       new ExifImage({ image: inputFilePath }, (error, exifData) => {
         if (error) {
           console.error(error);
+          errList.push({
+            file,
+            error: error.message,
+          });
         } else {
-          const fileExifData: exif.ExifData["image"] = {
-            ...exifData.image,
-          };
-          // console.log(fileExifData);
-          const { ModifyDate } = fileExifData;
+          const { ModifyDate } = exifData.image;
 
           if (ModifyDate) {
             const outputFileName = `${ModifyDate.split(":").join("-")}.${file
               .split(".")
               .at(-1)
               ?.toLowerCase()}`;
+
             const outputFilePath = `${outputDirectoryPath}/${outputFileName}`;
+            const taskName = `${file} --> ${outputFileName}`;
 
-            const flag = renameFile(inputFilePath, outputFilePath);
+            try {
+              fs.renameSync(inputFilePath, outputFilePath);
 
-            console.log(
-              `${finishList.length + 1} ${
-                flag.status
-                  ? "\u001b[32msucceed\u001b[0m"
-                  : "\u001b[31munsuccessful\u001b[0m"
-              } ${file} --> ${outputFileName} `
-            );
-            if (flag.status) {
-              finishList.push(flag);
-            } else {
-              errList.push(flag);
+              console.log(`${"\u001b[32msucceed\u001b[0m\t"} ${taskName}`);
+              finishList.push(file);
+            } catch (error) {
+              const _err = error as Error;
+              console.log(
+                `${"\u001b[31munsuccessful\u001b[0m\t"} ${taskName} ${`\u001b[31m${_err.message}\u001b[0m`}`
+              );
+              errList.push({
+                file,
+                error: _err.message,
+              });
             }
-          }
-
-          if (index === validFiles.length - 1) {
-            console.log();
-            console.log(
-              `Valid: \t${validFiles.length}\t ${inputDirectoryPath}`
-            );
-            console.log(
-              `\u001b[32mFinish: ${finishList.length}\u001b[0m\t ${outputDirectoryPath}`
-            );
-            console.log(
-              `\u001b[31mError: \t${errList.length}\u001b[0m\t ${
-                errList[0]?.msg ? errList[0]?.msg : ""
-              }...`
-            );
+          } else {
+            errList.push({
+              file,
+              error: `ModifyDate not found`,
+            });
           }
         }
       });
     });
+
+    const i = setInterval(() => {
+      if (finishList.length + errList.length === validFiles.length) {
+        console.log();
+        console.log(`Valid: \t${validFiles.length}\t ${inputDirectoryPath}`);
+        console.log(
+          `\u001b[32mFinish: ${finishList.length}\u001b[0m\t ${outputDirectoryPath}`
+        );
+        console.log(
+          `\u001b[31mError: \t${errList.length}\u001b[0m\t ${
+            errList[0]?.error ? errList[0]?.error : ""
+          }...`
+        );
+        console.log();
+
+        clearInterval(i);
+      }
+    }, 100);
   });
 }
 
-main("input", "ouput", {
-  newInfo: {},
-});
-// console.log(...arg)
+main("input", "output");
