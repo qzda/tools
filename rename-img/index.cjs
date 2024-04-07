@@ -4,12 +4,16 @@ const ExifImage = require("exif").ExifImage;
 const inputDirectory = "./input";
 const outputDirectory = "./output";
 
-fs.readdir(inputDirectory, (err, files) => {
+
+const inputDirectoryPath = `${__dirname}/${inputDirectory}`
+const outputDirectoryPath = `${__dirname}/${outputDirectory}`
+fs.readdir(inputDirectoryPath, (err, files) => {
   if (err) {
-    console.error(`读取文件夹错误：'${inputDirectory}'`);
+    console.error(`读取文件夹错误：'${inputDirectoryPath}'`);
     return;
   }
 
+  console.log(files)
   console.log(`共${files.length}个文件\n`);
 
   files.forEach((file) => {
@@ -27,7 +31,7 @@ fs.readdir(inputDirectory, (err, files) => {
           // return
 
           const outputFileName = `${ModifyDate.split(':').join('-')}.${file.split('.').at(-1)}`;
-          const outputFilePath = `${outputDirectory}/${outputFileName}`;
+          const outputFilePath = `${outputDirectoryPath}/${outputFileName}`;
 
           fs.rename(inputFilePath, outputFilePath, (err) => {
             if (err) {
