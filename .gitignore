@@ -1,8 +1,6 @@
 node_modules
 dist
 
-rename-img/input
-rename-img/output
-
 .DS_Store
 bun.lockb
+package-lock.json

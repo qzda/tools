@@ -1,0 +1,13 @@
+{
+  "name": "rename-img",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "bun run index.ts"
+  },
+  "dependencies": {
+    "exif": "^0.6.0"
+  },
+  "devDependencies": {
+    "@types/exif": "^0.6.5"
+  }
+}
