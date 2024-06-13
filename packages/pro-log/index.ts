@@ -6,6 +6,12 @@ class ProLog {
 
   constructor(text: string) {
     this.text = text
+
+    Object.entries(Color).forEach(([funcName, func]) => {
+      this[`color${funcName[0].toUpperCase()}${funcName.slice(1)}`] = () => {
+        return new ProLog(func(this.text))
+      }
+    })
   }
 
   colorRed() {
@@ -28,7 +34,10 @@ class ProLog {
     return this.text
   }
 }
+const prolog = new ProLog("he")
 
+console.log(new ProLog("hello").colorBrightYellow().bgBlack())
+console.log(new ProLog("hello").colorBrightYellow().bgBlack().text)
 console.log(new ProLog("hello").colorRed().bgBlack().toString())
 
 export default ProLog
