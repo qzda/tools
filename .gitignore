@@ -4,3 +4,5 @@ dist
 .DS_Store
 bun.lockb
 package-lock.json
+packages/rename-img/input/*.jpg|jpeg
+packages/rename-img/output/*.jpg|jpeg
