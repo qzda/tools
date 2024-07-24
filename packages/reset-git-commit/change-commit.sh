@@ -1,13 +1,11 @@
-#!/bin/sh
-
 git filter-branch --env-filter '
 
 # 之前的邮箱
-OLD_EMAIL="liyiji2000@gmail.com"
+OLD_EMAIL=""
 # 修改后的用户名
-CORRECT_NAME="qzda"
+CORRECT_NAME=""
 # 修改后的邮箱
-CORRECT_EMAIL="qinzhidao@foxmail.com"
+CORRECT_EMAIL=""
 
 if [ "$GIT_COMMITTER_EMAIL" = "$OLD_EMAIL" ]
 then
