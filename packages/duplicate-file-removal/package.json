@@ -1,0 +1,14 @@
+{
+  "name": "duplicate-file-removal",
+  "module": "main.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "hasha": "^6.0.0"
+  }
+}
